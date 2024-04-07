@@ -1,10 +1,4 @@
 {
-  "users": [
-    {
-      "id": "dbe02072-f8ba-4d31-868c-eb9fd1178f50",
-      "username": "robinson",
-      "room": "JavaScript"
-    }
-  ],
+  "users": [],
   "messages": []
 }

@@ -3,7 +3,7 @@ const express = require("express");
 const WebSocket = require('ws'); // Changed from 'ws' to require('ws')
 const { v4: uuidv4 } = require('uuid'); // Importing uuid library
 
-const formatMessage = require("./utils/messages");
+const {formatMessage, getRoomMessages, addMessage} = require("./utils/messages");
 require("dotenv").config();
 
 const {
@@ -44,7 +44,7 @@ wss.on("connection", (ws, req) => { // Changed 'connection' to 'ws' for WebSocke
       const { username, room } = message.payload;
       userJoin(ws.userId, username, room)
       .then(user => {
-        ws.room = user.room; // Storing room information in the WebSocket object
+        ws.room = user.room; 
         console.log("user is ",user);
         ws.send(JSON.stringify(formatMessage(botName, "Welcome to ChatCord!","message")));
         wss.clients.forEach((client) => {
@@ -58,15 +58,20 @@ wss.on("connection", (ws, req) => { // Changed 'connection' to 'ws' for WebSocke
           if (client.readyState === WebSocket.OPEN && client.room === user.room) {
           getRoomUsers(user.room)
             .then(users => {
+              getRoomMessages(user.room)
+              .then(messages => {
+
               client.send(JSON.stringify({
                 type: "roomUsers",
                 payload: {
                   room: user.room,
+                  messages,
                   users
                 },
               }));
 
             })
+          })
       
           }
         });
@@ -85,7 +90,11 @@ wss.on("connection", (ws, req) => { // Changed 'connection' to 'ws' for WebSocke
           wss.clients.forEach((client) => {
            
             if (client.readyState === WebSocket.OPEN && client.room === user.room) {
-              client.send(JSON.stringify(formatMessage(user.username, message.payload, "message")));
+              addMessage(ws.userId,user.username,user.room,message.payload)
+              .then(messag => {
+                console.log("messag",messag);
+                client.send(JSON.stringify(formatMessage(user.username, message.payload, "message")));
+              })
             }
           });
         })

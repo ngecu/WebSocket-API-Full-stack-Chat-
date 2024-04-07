@@ -30,6 +30,7 @@ socket.addEventListener('message', (event) => {
     outputRoomName(message.payload.room);
     console.log("messages is ",message);
     outputUsers(message.payload.users);
+    outputMessages(message.payload.messages)
   } else if (message.type === 'message') {
     console.log("message is message ",message);
     if (message.text && message.text.msg && !message.text.msg.includes(username)) {
@@ -86,6 +87,14 @@ function outputRoomName(room) {
   roomName.innerText = room;
 }
 
+function outputMessages(messages) {
+  messages.forEach((message) => {
+    outputMessage(message)
+  })
+}
+
+
+
 // Add users to DOM
 function outputUsers(users) {
   userList.innerHTML = '';
@@ -100,6 +109,6 @@ function outputUsers(users) {
 leaveButton.addEventListener('click', () => {
   const leaveRoom = confirm('Are you sure you want to leave the chatroom?');
   if (leaveRoom) {
-    window.location = '../index.html';
+    window.location = '/';
   }
 });
